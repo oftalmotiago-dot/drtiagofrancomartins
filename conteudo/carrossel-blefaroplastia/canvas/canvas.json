@@ -1,0 +1,110 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "title": "01 · Capa"
+    },
+    {
+      "file": "Definicao.dc.html",
+      "x": 1220,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "title": "02 · O que é"
+    },
+    {
+      "file": "Sinais.dc.html",
+      "x": 2440,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "title": "03 · Sinais"
+    },
+    {
+      "file": "Funcional.dc.html",
+      "x": 3660,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "title": "04 · Funcional"
+    },
+    {
+      "file": "SuperiorInferior.dc.html",
+      "x": 4880,
+      "y": 0,
+      "w": 1080,
+      "h": 1350,
+      "title": "05 · Superior x Inferior"
+    },
+    {
+      "file": "PeleMusculo.dc.html",
+      "x": 0,
+      "y": 1570,
+      "w": 1080,
+      "h": 1350,
+      "title": "06 · Pele ou músculo"
+    },
+    {
+      "file": "Cirurgia.dc.html",
+      "x": 1220,
+      "y": 1570,
+      "w": 1080,
+      "h": 1350,
+      "title": "07 · Como é feita"
+    },
+    {
+      "file": "Recuperacao.dc.html",
+      "x": 2440,
+      "y": 1570,
+      "w": 1080,
+      "h": 1350,
+      "title": "08 · Recuperação"
+    },
+    {
+      "file": "Mitos.dc.html",
+      "x": 3660,
+      "y": 1570,
+      "w": 1080,
+      "h": 1350,
+      "title": "09 · Mitos"
+    },
+    {
+      "file": "Fechamento.dc.html",
+      "x": 4880,
+      "y": 1570,
+      "w": 1080,
+      "h": 1350,
+      "title": "10 · Fechamento"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "crm",
+      "x": 0,
+      "y": -170,
+      "w": 520,
+      "text": "Preencher CRM e RQE no slide 10 antes de exportar."
+    },
+    {
+      "id": "diptico",
+      "x": 4880,
+      "y": 3060,
+      "w": 560,
+      "text": "Slide 10: a metade direita espera a foto atual — mesma pose e mesmo enquadramento da foto de 1987."
+    },
+    {
+      "id": "fontes",
+      "x": 600,
+      "y": -170,
+      "w": 620,
+      "text": "Na exportação em PNG/PDF as fontes do Google podem cair para Georgia e Helvetica. Confira o resultado antes de publicar."
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}

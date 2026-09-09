@@ -1,0 +1,6 @@
+# fotos de referencia do acervo pessoal — ficam fora do versionamento
+*.jpg
+*.jpeg
+*.png
+# arquivo montado do canvas (gerado a partir dos .dc.html)
+carrossel-blefaroplastia.html
