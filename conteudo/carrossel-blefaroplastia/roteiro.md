@@ -61,7 +61,9 @@ _Se você marcou três, vale uma consulta._
 > vira um problema de visão.**
 >
 > Quando a dermatocálase avança, o excesso de pele
-> cobre a pupila e **reduz o campo visual superior**.
+> avança sobre a margem palpebral e os cílios e
+> **reduz o campo visual superior** — muito antes
+> de chegar perto da pupila.
 >
 > Aí a blefaroplastia deixa de ser estética
 > e passa a ser **funcional** — com documentação
@@ -112,7 +114,7 @@ _Se você marcou três, vale uma consulta._
 > ▸ 40 a 90 minutos
 > ▸ Ambulatorial — você vai pra casa no mesmo dia
 > ▸ Na superior, a cicatriz mora dentro do sulco natural da pálpebra
-> ▸ Na inferior, a via transconjuntival não deixa cicatriz externa
+> ▸ Na inferior, quando o caso é de gordura, a via transconjuntival não deixa cicatriz externa
 >
 > A marcação é feita com você **sentado e acordado**.
 > Pálpebra deitada mente.
@@ -125,9 +127,10 @@ _Se você marcou três, vale uma consulta._
 >
 > **48–72h** gelo, cabeceira elevada
 > **5–7 dias** retirada dos pontos
-> **7–14 dias** o inchaço e o roxo vão embora
+> **7–14 dias** o roxo vai embora
 > **10–14 dias** retorno social tranquilo
-> **2–3 semanas** liberação para academia
+> **3–4 semanas** liberação para academia
+> **4–8 semanas** o inchaço residual cede
 > **Meses** a cicatriz amadurecendo e clareando
 >
 > Quem promete "sem edema" está vendendo, não operando.
@@ -227,3 +230,4 @@ Use as fotos de referência como *image reference / character reference* para ma
 - [ ] Conferir o texto vigente da Resolução CFM sobre publicidade médica e as orientações do CRM do seu estado antes de publicar
 - [ ] Contraste de texto sobre a foto: mínimo 4.5:1 (a foto de época é clara, use faixa escura)
 - [ ] Testar a legibilidade do slide 8 no celular — é o que tem mais linhas
+- [ ] Confirmar se os prazos de recuperação do slide 8 batem com o seu protocolo

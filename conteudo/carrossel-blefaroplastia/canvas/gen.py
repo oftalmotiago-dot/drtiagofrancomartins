@@ -64,9 +64,10 @@ def rule(dark=False):
     c = "rgba(247,242,233,0.22)" if dark else RULE
     return f'<div style="height: 1px; background: {c};"></div>'
 
-def foot(left, right, dark=False):
+def foot(left, right, dark=False, push=True):
     c = "rgba(247,242,233,0.62)" if dark else INK3
-    return (f'<div style="margin-top: auto; display: flex; justify-content: space-between; '
+    mt = "margin-top: auto; " if push else ""
+    return (f'<div style="{mt}display: flex; justify-content: space-between; '
             f'gap: 24px; font-family: {MONO}; font-size: 24px; letter-spacing: 0.12em; '
             f'text-transform: uppercase; color: {c};">'
             f'<span>{left}</span><span>{right}</span></div>')
@@ -76,8 +77,9 @@ def stack(children, gap=32, pad=84, top_bar=True, dark=False):
     if top_bar and not dark:
         bar = f'<div style="height: 10px; background: {AMBER};"></div>'
     kids = "\n  ".join(children)
+    h = "calc(100% - 10px)" if bar else "100%"
     return (f'{bar}<div style="display: flex; flex-direction: column; gap: {gap}px; '
-            f'padding: {pad}px; height: 100%; box-sizing: border-box;">\n  {kids}\n</div>')
+            f'padding: {pad}px; height: {h}; box-sizing: border-box;">\n  {kids}\n</div>')
 
 def photo_layer(src, alt):
     return (f'<img src="{src}" alt="{alt}" style="position: absolute; inset: 0; width: 100%; '
@@ -106,10 +108,10 @@ stamp = (f'<div style="position: absolute; top: 72px; left: 84px; z-index: 3; fo
          f'padding: 10px 18px;">1987</div>')
 inner = stack([
     '<div style="margin-top: auto;"></div>',
-    head("Eu j&aacute; passava o dia<br>olhando dentro dos olhos<br>das pessoas.", 86, dark=True),
+    head("Eu j&aacute; passava o dia<br>olhando dentro dos olhos<br>das pessoas.", 74, dark=True),
     body_txt("Mudou a tecnologia. N&atilde;o mudou o que a gente<br>enxerga numa p&aacute;lpebra cansada.", 40, dark=True),
     rule(dark=True),
-    foot("Blefaroplastia", "arraste &rarr;", dark=True),
+    foot("Blefaroplastia", "arraste &rarr;", dark=True, push=False),
 ], gap=30, dark=True)
 files["Main.dc.html"] = page(frame(
     f'<div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column;">{inner}</div>',
@@ -128,9 +130,9 @@ files["Definicao.dc.html"] = page(frame(stack([
 # ---------- 03 ----------
 files["Sinais.dc.html"] = page(frame(stack([
     kicker("Sinais"),
-    head("Sua p&aacute;lpebra pode estar pedindo avalia&ccedil;&atilde;o se:", 72),
+    head("Sua p&aacute;lpebra pode estar pedindo uma avalia&ccedil;&atilde;o se:", 72),
     ul(["a pele encosta nos c&iacute;lios",
-        "voc&ecirc; levanta a sobrancelha sem perceber pra enxergar",
+        "voc&ecirc; levanta a sobrancelha sem perceber pra enxergar melhor",
         "a testa d&oacute;i no fim do dia",
         "o delineador some na dobra da p&aacute;lpebra",
         "as fotos mostram um cansa&ccedil;o que voc&ecirc; n&atilde;o est&aacute; sentindo"], gap=26),
@@ -143,9 +145,9 @@ files["Sinais.dc.html"] = page(frame(stack([
 files["Funcional.dc.html"] = page(frame(stack([
     kicker("N&atilde;o &eacute; s&oacute; est&eacute;tica"),
     head("Tem hora que a p&aacute;lpebra vira um problema de vis&atilde;o.", 76),
-    body_txt("Quando a dermatoc&aacute;lase avan&ccedil;a, o excesso de pele cobre a pupila e " + em("reduz o campo visual superior") + "."),
+    body_txt("Quando a dermatoc&aacute;lase avan&ccedil;a, o excesso de pele avan&ccedil;a sobre a margem palpebral e os c&iacute;lios e " + em("reduz o campo visual superior") + " &mdash; muito antes de chegar perto da pupila."),
     rule(),
-    body_txt("A&iacute; a cirurgia &eacute; " + em("funcional") + " &mdash; documentada por campimetria e fotografia, inclusive para autoriza&ccedil;&atilde;o em conv&ecirc;nio."),
+    body_txt("A&iacute; a blefaroplastia " + em("deixa de ser est&eacute;tica e passa a ser funcional") + " &mdash; documentada por campimetria e fotografia, inclusive para fins de autoriza&ccedil;&atilde;o em conv&ecirc;nio."),
     foot("04 / 10", HANDLE),
 ], gap=36)))
 
@@ -153,13 +155,13 @@ files["Funcional.dc.html"] = page(frame(stack([
 col = lambda t, b: (f'<div style="display: flex; flex-direction: column; gap: 18px;">'
     f'<div style="font-family: {MONO}; font-size: 26px; font-weight: 600; letter-spacing: 0.16em; '
     f'text-transform: uppercase; color: {BLUE};">{t}</div>'
-    f'<div style="font-size: 38px; line-height: 1.32; color: {INK};">{b}</div></div>')
+    f'<div style="font-size: 36px; line-height: 1.34; color: {INK};">{b}</div></div>')
 files["SuperiorInferior.dc.html"] = page(frame(stack([
     kicker("Superior &ne; inferior"),
     head("S&atilde;o duas cirurgias diferentes.", 76),
     (f'<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px;">'
-     + col("Superior", "Excesso de pele.<br>Olhar pesado.<br>Campo visual comprometido.")
-     + col("Inferior", "Bolsas de gordura.<br>Sulco marcado.<br>Sombra que imita olheira.")
+     + col("Superior", "Excesso de pele. Olhar pesado. Campo visual comprometido.")
+     + col("Inferior", "Bolsas de gordura. Sulco marcado. Sombra que imita olheira.")
      + '</div>'),
     rule(),
     body_txt("Nem todo mundo precisa das duas. &Agrave;s vezes uma s&oacute; resolve o inc&ocirc;modo inteiro."),
@@ -185,10 +187,10 @@ inner7 = stack([
         "40 a 90 minutos",
         "Ambulatorial &mdash; alta no mesmo dia",
         "Superior: cicatriz dentro do sulco natural",
-        "Inferior: via transconjuntival, sem cicatriz externa"], dark=True, gap=24, size=38),
+        "Inferior: quando o caso &eacute; de gordura, a via transconjuntival n&atilde;o deixa cicatriz externa"], dark=True, gap=24, size=38),
     rule(dark=True),
     body_txt("A marca&ccedil;&atilde;o &eacute; feita com voc&ecirc; " + em("sentado e acordado", dark=True) + ". P&aacute;lpebra deitada mente.", 38, dark=True),
-    foot("07 / 10", HANDLE, dark=True),
+    foot("07 / 10", HANDLE, dark=True, push=False),
 ], gap=30, dark=True)
 files["Cirurgia.dc.html"] = page(frame(
     f'<div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column;">{inner7}</div>',
@@ -205,9 +207,10 @@ files["Recuperacao.dc.html"] = page(frame(stack([
     ('<div style="display: flex; flex-direction: column; gap: 24px;">'
      + tl("48&ndash;72h", "gelo e cabeceira elevada")
      + tl("5&ndash;7 dias", "retirada dos pontos")
-     + tl("7&ndash;14 dias", "incha&ccedil;o e roxo v&atilde;o embora")
+     + tl("7&ndash;14 dias", "o roxo vai embora")
      + tl("10&ndash;14 dias", "retorno social tranquilo")
-     + tl("2&ndash;3 semanas", "libera&ccedil;&atilde;o para academia")
+     + tl("3&ndash;4 semanas", "libera&ccedil;&atilde;o para academia")
+     + tl("4&ndash;8 semanas", "o incha&ccedil;o residual cede")
      + tl("meses", "cicatriz amadurece e clareia")
      + '</div>'),
     rule(),
@@ -225,9 +228,9 @@ files["Mitos.dc.html"] = page(frame(stack([
     kicker("Mitos"),
     ('<div style="display: flex; flex-direction: column; gap: 34px;">'
      + myth("Vai ficar com olhar puxado.", "Isso &eacute; ressec&ccedil;&atilde;o excessiva &mdash; erro de indica&ccedil;&atilde;o e de t&eacute;cnica, n&atilde;o a cirurgia.")
-     + myth("&Eacute; coisa de idoso.", "A indica&ccedil;&atilde;o &eacute; anat&ocirc;mica, n&atilde;o et&aacute;ria. Tem gente de 35 com bolsa hereditária.")
-     + myth("Acaba com a olheira.", "Olheira de sombra, causada por bolsa, sim. Olheira pigmentada, n&atilde;o.")
-     + myth("&Eacute; pra sempre.", "A superior costuma durar mais de 10 anos. Mas o rosto continua envelhecendo.")
+     + myth("&Eacute; coisa de idoso.", "A indica&ccedil;&atilde;o &eacute; anat&ocirc;mica, n&atilde;o et&aacute;ria. Tem gente de 35 com bolsa heredit&aacute;ria.")
+     + myth("Acaba com a olheira.", "Olheira de sombra, causada por bolsa, sim. Olheira pigmentada, n&atilde;o &mdash; isso &eacute; outro tratamento.")
+     + myth("&Eacute; pra sempre.", "O resultado da superior costuma durar mais de 10 anos. Mas o rosto continua envelhecendo.")
      + '</div>'),
     foot("09 / 10", HANDLE),
 ], gap=36)))
@@ -251,7 +254,8 @@ inner10 = stack([
     (f'<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 24px;">'
      f'<div style="font-family: {SLAB}; font-weight: 600; font-size: 42px; color: {CREAM};">Agende sua consulta</div>'
      f'<div style="font-family: {MONO}; font-size: 22px; line-height: 1.6; letter-spacing: 0.08em; '
-     f'text-align: right; color: {GOLD};">DR. TIAGO FRANCO MARTINS<br>CRM 00000 &middot; RQE 0000</div></div>'),
+     f'text-align: right; color: {GOLD};">DR. TIAGO FRANCO MARTINS<br>OFTALMOLOGISTA &middot; CIRURGI&Atilde;O OCULOPL&Aacute;STICO<br>CRM 00000 &middot; RQE 0000</div></div>'),
+    foot("10 / 10", HANDLE, dark=True, push=False),
 ], gap=28, dark=True)
 files["Fechamento.dc.html"] = page(frame(
     f'<div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column;">{inner10}</div>',
