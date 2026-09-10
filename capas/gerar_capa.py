@@ -28,6 +28,7 @@ SAFE_TOP, SAFE_BOT = (H - 1350) // 2, (H + 1350) // 2
 
 MARGEM = 68
 CONDENSAR_MIN = 0.82   # condensacao horizontal maxima do titulo
+FOLGA_CABELO = 50      # respiro entre a base do titulo e o topo da cabeca
 AZUL_TOPO, AZUL_BASE = (5, 24, 46), (12, 62, 102)
 DESTAQUE = (94, 199, 245)
 
@@ -162,10 +163,12 @@ def escrever(img, titulo, chapeu, nome, cargo):
 
     # Titulo. Palavras longas ("BLEFAROPLASTIA") condensam de leve em vez de
     # encolher: mantem o impacto sem estourar a margem.
-    y += 74
+    y += 70
     linhas = titulo.split("\n")
-    altura_max = TOPO_CABECA + 26 - y
-    tamanho = min(190, int(altura_max / (1.03 * len(linhas))))
+    # Corpo da fonte tirado do espaco livre ate a cabeca, ja descontando a folga.
+    # 1.03 = entrelinha; 0.72 = altura aproximada das maiusculas da Outfit.
+    espaco = TOPO_CABECA - FOLGA_CABELO - y
+    tamanho = min(190, int(espaco / ((len(linhas) - 1) * 1.03 + 0.72)))
     while tamanho > 44:
         f = fonte(BOLD, tamanho)
         larguras = [f.getbbox(ln)[2] for ln in linhas]
@@ -173,6 +176,7 @@ def escrever(img, titulo, chapeu, nome, cargo):
         if fator >= CONDENSAR_MIN:
             break
         tamanho -= 2
+
 
     entrelinha = round(tamanho * 1.03)
     for i, linha in enumerate(linhas):
