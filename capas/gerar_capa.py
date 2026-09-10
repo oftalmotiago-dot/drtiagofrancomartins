@@ -32,7 +32,10 @@ AZUL_TOPO, AZUL_BASE = (5, 24, 46), (12, 62, 102)
 DESTAQUE = (94, 199, 245)
 
 # Posicao da figura: largura final em px e altura do topo da cabeca.
-PESSOA_LARGURA, PESSOA_CENTRO_X, TOPO_CABECA = 901, 548, 668
+# A largura passa de 1080 de proposito: dos ombros para baixo o corpo ja toca as
+# bordas da foto original, entao ele precisa sangrar para fora do quadro — assim
+# o corte fica fora da capa em vez de aparecer como uma linha reta nas laterais.
+PESSOA_LARGURA, PESSOA_CENTRO_X, TOPO_CABECA = 1120, 540, 610
 
 
 def fonte(caminho, tamanho):
@@ -135,8 +138,8 @@ def escurecer_extremos(img):
     base = Image.new("L", (1, H), 0)
     bp = base.load()
     for y in range(H):
-        t = max(0.0, (y - 1330) / (H - 1330))
-        bp[0, y] = round(200 * t ** 1.5)
+        t = max(0.0, (y - 1240) / (H - 1240))
+        bp[0, y] = round(238 * t ** 1.25)
     img = Image.composite(Image.new("RGBA", (W, H), (4, 18, 34, 255)), img,
                           base.resize((W, H), Image.BICUBIC))
 
@@ -209,7 +212,7 @@ if __name__ == "__main__":
     p.add_argument("--fundo", default="estudio", choices=["estudio", "consultorio"])
     p.add_argument("--titulo", default="BLEFAROPLASTIA\nEM HOMENS",
                    help="use \\n para quebrar linha")
-    p.add_argument("--chapeu", default="SEGURANÇA E CONFORTO")
+    p.add_argument("--chapeu", default="CIRURGIA DE PÁLPEBRAS")
     p.add_argument("--nome", default="Dr. Tiago Franco Martins")
     p.add_argument("--cargo", default="Oftalmologista · Cirurgião oculoplástico")
     p.add_argument("--saida", default="capa.jpg")

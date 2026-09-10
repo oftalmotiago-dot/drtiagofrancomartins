@@ -54,3 +54,10 @@ fontes/                        Outfit (SIL Open Font License, ver Outfit-OFL.txt
 Para uma foto nova, basta substituir `assets/dr-tiago-recorte.png` por outro
 PNG com fundo transparente e ajustar `TOPO_CABECA` / `PESSOA_LARGURA` no
 topo do `gerar_capa.py`.
+
+**Atenção ao `PESSOA_LARGURA`:** na selfie atual os ombros já tocam as bordas
+da própria foto, ou seja, o corpo vem cortado da origem. Por isso a figura é
+montada com largura maior que os 1080 px da capa — ela sangra para fora do
+quadro e o corte fica de fora. Se a largura cair abaixo de ~1100 px, reaparece
+uma linha reta cortando o corpo nas laterais. Uma foto tirada de mais longe,
+com espaço sobrando dos dois lados do corpo, permite enquadrar mais aberto.
