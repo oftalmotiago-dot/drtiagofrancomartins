@@ -27,6 +27,7 @@ W, H = 1080, 1920
 SAFE_TOP, SAFE_BOT = (H - 1350) // 2, (H + 1350) // 2
 
 MARGEM = 68
+CONDENSAR_MIN = 0.82   # condensacao horizontal maxima do titulo
 AZUL_TOPO, AZUL_BASE = (5, 24, 46), (12, 62, 102)
 DESTAQUE = (94, 199, 245)
 
@@ -36,18 +37,6 @@ PESSOA_LARGURA, PESSOA_CENTRO_X, TOPO_CABECA = 901, 548, 668
 
 def fonte(caminho, tamanho):
     return ImageFont.truetype(str(caminho), tamanho)
-
-
-def ajustar_fonte(caminho, texto, largura_max, inicio=190, minimo=44):
-    """Maior corpo de fonte em que o texto cabe na largura disponivel."""
-    tamanho = inicio
-    while tamanho > minimo:
-        f = fonte(caminho, tamanho)
-        cx = f.getbbox(texto)
-        if cx[2] - cx[0] <= largura_max:
-            return f
-        tamanho -= 2
-    return fonte(caminho, minimo)
 
 
 def degrade(topo, base):
@@ -168,18 +157,29 @@ def escrever(img, titulo, chapeu, nome, cargo):
     d.rounded_rectangle([MARGEM, y + 6, MARGEM + 8, y + 44], 4, fill=DESTAQUE)
     d.text((MARGEM + 26, y), chapeu, font=fonte(BOLD, 34), fill=(198, 226, 245))
 
-    # titulo, limitado pela largura e pela altura livre acima da cabeca
+    # Titulo. Palavras longas ("BLEFAROPLASTIA") condensam de leve em vez de
+    # encolher: mantem o impacto sem estourar a margem.
     y += 74
     linhas = titulo.split("\n")
     altura_max = TOPO_CABECA + 26 - y
-    f = min((ajustar_fonte(BOLD, ln, largura_max) for ln in linhas), key=lambda x: x.size)
-    while f.size > 44 and round(f.size * 1.03) * len(linhas) > altura_max:
-        f = fonte(BOLD, f.size - 2)
-    entrelinha = round(f.size * 1.03)
+    tamanho = min(190, int(altura_max / (1.03 * len(linhas))))
+    while tamanho > 44:
+        f = fonte(BOLD, tamanho)
+        larguras = [f.getbbox(ln)[2] for ln in linhas]
+        fator = min(1.0, largura_max / max(larguras))
+        if fator >= CONDENSAR_MIN:
+            break
+        tamanho -= 2
+
+    entrelinha = round(tamanho * 1.03)
     for i, linha in enumerate(linhas):
-        yy = y + i * entrelinha
-        d.text((MARGEM + 3, yy + 4), linha, font=f, fill=(0, 12, 26, 120))
-        d.text((MARGEM, yy), linha, font=f, fill=(255, 255, 255))
+        tela = Image.new("RGBA", (max(larguras) + 12, round(tamanho * 1.5)), (0, 0, 0, 0))
+        dl = ImageDraw.Draw(tela)
+        dl.text((3, 4), linha, font=f, fill=(0, 12, 26, 120))
+        dl.text((0, 0), linha, font=f, fill=(255, 255, 255))
+        if fator < 1.0:
+            tela = tela.resize((round(tela.width * fator), tela.height), Image.LANCZOS)
+        img.alpha_composite(tela, (MARGEM, y + i * entrelinha))
 
     # assinatura, ancorada no limite inferior da area segura
     base = SAFE_BOT - 6
@@ -207,9 +207,9 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--fundo", default="estudio", choices=["estudio", "consultorio"])
-    p.add_argument("--titulo", default="SEGURANÇA\nE CONFORTO",
+    p.add_argument("--titulo", default="BLEFAROPLASTIA\nEM HOMENS",
                    help="use \\n para quebrar linha")
-    p.add_argument("--chapeu", default="CIRURGIA DE PÁLPEBRAS")
+    p.add_argument("--chapeu", default="SEGURANÇA E CONFORTO")
     p.add_argument("--nome", default="Dr. Tiago Franco Martins")
     p.add_argument("--cargo", default="Oftalmologista · Cirurgião oculoplástico")
     p.add_argument("--saida", default="capa.jpg")
