@@ -8,22 +8,23 @@ Capas verticais (1080×1920) para Reels / Shorts / TikTok.
 pip install Pillow
 
 cd capas
-python3 gerar_capa.py --fundo estudio --saida minha-capa.jpg
+python3 gerar_capa.py --foto sueter --fundo estudio --saida minha-capa.jpg
 ```
 
 ### Trocar os textos
 
 ```bash
 python3 gerar_capa.py \
-  --fundo estudio \
-  --chapeu "CIRURGIA DE PÁLPEBRAS" \
-  --titulo "SEGURANÇA\nE CONFORTO" \
+  --foto camisa-azul --fundo grafite \
+  --chapeu "CICATRIZ NA BLEFAROPLASTIA" \
+  --titulo "O MITO QUE\nMAIS ATRAPALHA" \
   --saida minha-capa.jpg
 ```
 
 | Parâmetro  | O que é                                        |
 |------------|------------------------------------------------|
-| `--fundo`  | `estudio` (degradê azul) ou `consultorio`      |
+| `--foto`   | `sueter` ou `camisa-azul`                       |
+| `--fundo`  | `estudio` (azul da marca), `consultorio` ou `grafite` |
 | `--chapeu` | linha pequena acima do título                   |
 | `--titulo` | título principal (`\n` quebra a linha)          |
 | `--nome`   | nome na assinatura                              |
@@ -46,16 +47,31 @@ quebrar o layout.
 ## Arquivos
 
 ```
-assets/dr-tiago-recorte.png    recorte do Dr. Tiago, fundo transparente
-assets/fundo-consultorio.jpg   faixa da parede/TV do consultório (frame do vídeo)
-fontes/                        Outfit (SIL Open Font License, ver Outfit-OFL.txt)
+assets/dr-tiago-recorte.png      recorte com suéter vinho, fundo transparente
+assets/dr-tiago-camisa-azul.png  recorte com camisa azul, fundo transparente
+assets/fundo-consultorio.jpg     faixa da parede/TV do consultório (frame do vídeo)
+fontes/                          Outfit (SIL Open Font License, ver Outfit-OFL.txt)
 ```
 
-Para uma foto nova, basta substituir `assets/dr-tiago-recorte.png` por outro
-PNG com fundo transparente e ajustar `TOPO_CABECA` / `PESSOA_LARGURA` no
-topo do `gerar_capa.py`.
+O fundo `grafite` existe para roupas claras: a camisa azul se aproxima demais
+do azul da marca e perde separação no fundo `estudio`.
 
-**Atenção ao `PESSOA_LARGURA`:** na selfie atual os ombros já tocam as bordas
+## Adicionar uma foto nova
+
+Salve o recorte (PNG com fundo transparente) em `assets/` e acrescente uma
+entrada em `PERFIS`, no topo do `gerar_capa.py`:
+
+```python
+"camisa-azul": dict(arquivo="dr-tiago-camisa-azul.png",
+                    largura=1160, centro_x=567, topo_cabeca=600, brilho=1.14),
+```
+
+- `largura` — largura final da figura na capa
+- `centro_x` — onde o **rosto** deve cair (nem sempre é o meio do recorte)
+- `topo_cabeca` — altura do topo da cabeça; o título se ajusta a partir dela
+- `brilho` — correção de exposição, para fotos em contraluz
+
+**Atenção à `largura`:** na selfie atual os ombros já tocam as bordas
 da própria foto, ou seja, o corpo vem cortado da origem. Por isso a figura é
 montada com largura maior que os 1080 px da capa — ela sangra para fora do
 quadro e o corte fica de fora. Se a largura cair abaixo de ~1100 px, reaparece

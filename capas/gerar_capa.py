@@ -15,7 +15,6 @@ from PIL import (Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter,
                  ImageFont, ImageOps)
 
 BASE = Path(__file__).resolve().parent
-RECORTE = BASE / "assets" / "dr-tiago-recorte.png"
 FUNDO_CONSULTORIO = BASE / "assets" / "fundo-consultorio.jpg"
 BOLD = BASE / "fontes" / "Outfit-Bold.ttf"
 REGULAR = BASE / "fontes" / "Outfit-Regular.ttf"
@@ -32,11 +31,18 @@ FOLGA_CABELO = 50      # respiro entre a base do titulo e o topo da cabeca
 AZUL_TOPO, AZUL_BASE = (5, 24, 46), (12, 62, 102)
 DESTAQUE = (94, 199, 245)
 
-# Posicao da figura: largura final em px e altura do topo da cabeca.
-# A largura passa de 1080 de proposito: dos ombros para baixo o corpo ja toca as
-# bordas da foto original, entao ele precisa sangrar para fora do quadro — assim
-# o corte fica fora da capa em vez de aparecer como uma linha reta nas laterais.
-PESSOA_LARGURA, PESSOA_CENTRO_X, TOPO_CABECA = 1120, 540, 610
+# Enquadramento de cada foto. A largura passa de 1080 de proposito: nas duas
+# fotos o corpo ja toca as bordas da imagem original dos ombros para baixo, entao
+# a figura precisa sangrar para fora do quadro — assim o corte fica fora da capa
+# em vez de virar uma linha reta nas laterais. `centro_x` alinha o ROSTO no meio
+# da capa (nem sempre e o meio do recorte).
+PERFIS = {
+    "sueter": dict(arquivo="dr-tiago-recorte.png",
+                   largura=1120, centro_x=540, topo_cabeca=610, brilho=1.06),
+    # foto tirada em contraluz (janela atras): o rosto pede um brilho maior
+    "camisa-azul": dict(arquivo="dr-tiago-camisa-azul.png",
+                        largura=1160, centro_x=567, topo_cabeca=600, brilho=1.14),
+}
 
 
 def fonte(caminho, tamanho):
@@ -78,6 +84,15 @@ def fundo_estudio():
     return bg
 
 
+def fundo_grafite():
+    """Grafite frio com brilho azul discreto. Da mais contraste para roupas
+    claras, que se aproximam demais do azul da marca."""
+    bg = degrade((22, 26, 32), (38, 46, 58))
+    bg = brilho(bg, (540, 940), 620, (52, 74, 100), 130)
+    bg = brilho(bg, (540, 880), 380, (64, 104, 140), 95)
+    return vinheta(bg, (12, 15, 20))
+
+
 def fundo_consultorio():
     """Faixa da parede/TV do consultorio (frame do proprio video), desfocada e
     dissolvida no azul da marca. Usa so a area acima da cabeca, sem UI do celular."""
@@ -102,24 +117,24 @@ def fundo_consultorio():
     return vinheta(bg)
 
 
-def camadas_pessoa():
+def camadas_pessoa(perfil):
     """Devolve (sombra, figura, luz de contorno) ja posicionadas na tela."""
-    cut = Image.open(RECORTE).convert("RGBA")
+    cut = Image.open(BASE / "assets" / perfil["arquivo"]).convert("RGBA")
     alfa = cut.getchannel("A")
 
-    rgb = ImageEnhance.Brightness(cut.convert("RGB")).enhance(1.06)
+    rgb = ImageEnhance.Brightness(cut.convert("RGB")).enhance(perfil["brilho"])
     rgb = ImageEnhance.Contrast(rgb).enhance(1.07)
     rgb = ImageEnhance.Color(rgb).enhance(1.05)
     rgb = rgb.filter(ImageFilter.UnsharpMask(radius=3, percent=55, threshold=3))
     rgb.putalpha(alfa)
 
-    escala = PESSOA_LARGURA / cut.width
+    escala = perfil["largura"] / cut.width
     bx0, by0, bx1, _ = alfa.getbbox()
     cut = rgb.resize((round(cut.width * escala), round(cut.height * escala)), Image.LANCZOS)
 
     figura = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    figura.paste(cut, (round(PESSOA_CENTRO_X - (bx0 + bx1) / 2 * escala),
-                       TOPO_CABECA - round(by0 * escala)), cut)
+    figura.paste(cut, (round(perfil["centro_x"] - (bx0 + bx1) / 2 * escala),
+                       perfil["topo_cabeca"] - round(by0 * escala)), cut)
 
     sombra = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     sombra.paste(Image.new("RGBA", (W, H), (0, 10, 22, 190)), (0, 0), figura)
@@ -152,7 +167,7 @@ def escurecer_extremos(img):
                            topo.resize((W, H), Image.BICUBIC))
 
 
-def escrever(img, titulo, chapeu, nome, cargo):
+def escrever(img, titulo, chapeu, nome, cargo, topo_cabeca):
     d = ImageDraw.Draw(img, "RGBA")
     largura_max = W - 2 * MARGEM
 
@@ -167,7 +182,7 @@ def escrever(img, titulo, chapeu, nome, cargo):
     linhas = titulo.split("\n")
     # Corpo da fonte tirado do espaco livre ate a cabeca, ja descontando a folga.
     # 1.03 = entrelinha; 0.72 = altura aproximada das maiusculas da Outfit.
-    espaco = TOPO_CABECA - FOLGA_CABELO - y
+    espaco = topo_cabeca - FOLGA_CABELO - y
     tamanho = min(190, int(espaco / ((len(linhas) - 1) * 1.03 + 0.72)))
     while tamanho > 44:
         f = fonte(BOLD, tamanho)
@@ -195,16 +210,17 @@ def escrever(img, titulo, chapeu, nome, cargo):
     d.text((MARGEM, base - 44), cargo.upper(), font=fonte(REGULAR, 34), fill=(176, 208, 232))
 
 
-def gerar(fundo, titulo, chapeu, nome, cargo, saida):
-    bg = fundo_estudio() if fundo == "estudio" else fundo_consultorio()
-    sombra, figura, contorno = camadas_pessoa()
+def gerar(fundo, perfil, titulo, chapeu, nome, cargo, saida):
+    bg = {"estudio": fundo_estudio, "consultorio": fundo_consultorio,
+          "grafite": fundo_grafite}[fundo]()
+    sombra, figura, contorno = camadas_pessoa(perfil)
 
     img = Image.alpha_composite(bg.convert("RGBA"), sombra)
     img = Image.alpha_composite(img, figura)
     img = Image.alpha_composite(img, contorno)
     img = escurecer_extremos(img)
 
-    escrever(img, titulo, chapeu, nome, cargo)
+    escrever(img, titulo, chapeu, nome, cargo, perfil["topo_cabeca"])
     Path(saida).parent.mkdir(parents=True, exist_ok=True)
     img.convert("RGB").save(saida, quality=95, subsampling=0)
     print("capa gerada:", saida)
@@ -213,7 +229,9 @@ def gerar(fundo, titulo, chapeu, nome, cargo, saida):
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("--fundo", default="estudio", choices=["estudio", "consultorio"])
+    p.add_argument("--fundo", default="estudio",
+                   choices=["estudio", "consultorio", "grafite"])
+    p.add_argument("--foto", default="sueter", choices=sorted(PERFIS))
     p.add_argument("--titulo", default="BLEFAROPLASTIA\nEM HOMENS",
                    help="use \\n para quebrar linha")
     p.add_argument("--chapeu", default="CIRURGIA DE PÁLPEBRAS")
@@ -221,4 +239,5 @@ if __name__ == "__main__":
     p.add_argument("--cargo", default="Oftalmologista · Cirurgião oculoplástico")
     p.add_argument("--saida", default="capa.jpg")
     a = p.parse_args()
-    gerar(a.fundo, a.titulo.replace("\\n", "\n"), a.chapeu, a.nome, a.cargo, a.saida)
+    gerar(a.fundo, PERFIS[a.foto], a.titulo.replace("\\n", "\n"), a.chapeu,
+          a.nome, a.cargo, a.saida)
