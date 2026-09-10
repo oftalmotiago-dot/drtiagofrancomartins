@@ -31,6 +31,21 @@ FOLGA_CABELO = 50      # respiro entre a base do titulo e o topo da cabeca
 AZUL_TOPO, AZUL_BASE = (5, 24, 46), (12, 62, 102)
 DESTAQUE = (94, 199, 245)
 
+# Cada fundo carrega sua paleta de texto: destaque (barrinhas), apoio (linha da
+# especialidade) e os tons usados para escurecer topo e base.
+PALETA_AZUL = dict(destaque=DESTAQUE, chapeu=(198, 226, 245), apoio=(176, 208, 232),
+                   sombra_base=(4, 18, 34), sombra_topo=(3, 16, 32))
+PALETAS = {
+    "estudio": PALETA_AZUL,
+    "consultorio": PALETA_AZUL,
+    "grafite": PALETA_AZUL,
+    # petroleo acompanha roupas marrons: o azul-esverdeado e o complementar do
+    # marrom, e o acento vira areia quente em vez de azul.
+    "petroleo": dict(destaque=(240, 192, 132), chapeu=(240, 224, 202),
+                     apoio=(214, 200, 180),
+                     sombra_base=(5, 24, 26), sombra_topo=(4, 20, 22)),
+}
+
 # Enquadramento de cada foto. A largura passa de 1080 de proposito: nas duas
 # fotos o corpo ja toca as bordas da imagem original dos ombros para baixo, entao
 # a figura precisa sangrar para fora do quadro — assim o corte fica fora da capa
@@ -42,6 +57,11 @@ PERFIS = {
     # foto tirada em contraluz (janela atras): o rosto pede um brilho maior
     "camisa-azul": dict(arquivo="dr-tiago-camisa-azul.png",
                         largura=1160, centro_x=567, topo_cabeca=600, brilho=1.14),
+    # nesta foto o rosto e bem maior dentro do quadro: a cabeca sobe para o
+    # queixo nao encostar na assinatura, e o titulo cruza de leve o cabelo.
+    "sueter-marrom": dict(arquivo="dr-tiago-sueter-marrom.png",
+                          largura=1160, centro_x=510, topo_cabeca=480,
+                          base_titulo=558, brilho=1.08),
 }
 
 
@@ -82,6 +102,15 @@ def fundo_estudio():
     bg = brilho(bg, (150, 250), 460, (10, 40, 74), 120)
     bg = brilho(bg, (540, 900), 400, (34, 132, 198), 110)
     return bg
+
+
+def fundo_petroleo():
+    """Azul-esverdeado profundo, complementar do marrom."""
+    bg = degrade((6, 30, 34), (13, 72, 78))
+    bg = brilho(bg, (540, 960), 620, (24, 116, 122), 140)
+    bg = brilho(bg, (150, 250), 460, (6, 40, 46), 110)
+    bg = brilho(bg, (540, 900), 400, (34, 140, 146), 105)
+    return vinheta(bg, (3, 18, 20))
 
 
 def fundo_grafite():
@@ -149,32 +178,32 @@ def camadas_pessoa(perfil):
     return sombra, figura, contorno
 
 
-def escurecer_extremos(img):
+def escurecer_extremos(img, paleta):
     """Degrades no topo e na base para o texto sempre ter contraste."""
     base = Image.new("L", (1, H), 0)
     bp = base.load()
     for y in range(H):
         t = max(0.0, (y - 1240) / (H - 1240))
         bp[0, y] = round(238 * t ** 1.25)
-    img = Image.composite(Image.new("RGBA", (W, H), (4, 18, 34, 255)), img,
+    img = Image.composite(Image.new("RGBA", (W, H), paleta["sombra_base"] + (255,)), img,
                           base.resize((W, H), Image.BICUBIC))
 
     topo = Image.new("L", (1, H), 0)
     tp = topo.load()
     for y in range(H):
         tp[0, y] = round(165 * max(0.0, (760 - y) / 760) ** 1.3)
-    return Image.composite(Image.new("RGBA", (W, H), (3, 16, 32, 255)), img,
+    return Image.composite(Image.new("RGBA", (W, H), paleta["sombra_topo"] + (255,)), img,
                            topo.resize((W, H), Image.BICUBIC))
 
 
-def escrever(img, titulo, chapeu, nome, cargo, topo_cabeca):
+def escrever(img, titulo, chapeu, nome, cargo, base_titulo, paleta):
     d = ImageDraw.Draw(img, "RGBA")
     largura_max = W - 2 * MARGEM
 
     # chapeu, com barra de destaque
     y = SAFE_TOP + 8
-    d.rounded_rectangle([MARGEM, y + 6, MARGEM + 8, y + 44], 4, fill=DESTAQUE)
-    d.text((MARGEM + 26, y), chapeu, font=fonte(BOLD, 34), fill=(198, 226, 245))
+    d.rounded_rectangle([MARGEM, y + 6, MARGEM + 8, y + 44], 4, fill=paleta["destaque"])
+    d.text((MARGEM + 26, y), chapeu, font=fonte(BOLD, 34), fill=paleta["chapeu"])
 
     # Titulo. Palavras longas ("BLEFAROPLASTIA") condensam de leve em vez de
     # encolher: mantem o impacto sem estourar a margem.
@@ -182,7 +211,7 @@ def escrever(img, titulo, chapeu, nome, cargo, topo_cabeca):
     linhas = titulo.split("\n")
     # Corpo da fonte tirado do espaco livre ate a cabeca, ja descontando a folga.
     # 1.03 = entrelinha; 0.72 = altura aproximada das maiusculas da Outfit.
-    espaco = topo_cabeca - FOLGA_CABELO - y
+    espaco = base_titulo - y
     tamanho = min(190, int(espaco / ((len(linhas) - 1) * 1.03 + 0.72)))
     while tamanho > 44:
         f = fonte(BOLD, tamanho)
@@ -205,22 +234,27 @@ def escrever(img, titulo, chapeu, nome, cargo, topo_cabeca):
 
     # assinatura, ancorada no limite inferior da area segura
     base = SAFE_BOT - 6
-    d.rounded_rectangle([MARGEM, base - 128, MARGEM + 96, base - 122], 3, fill=DESTAQUE)
+    d.rounded_rectangle([MARGEM, base - 128, MARGEM + 96, base - 122], 3, fill=paleta["destaque"])
     d.text((MARGEM, base - 108), nome, font=fonte(BOLD, 52), fill=(255, 255, 255))
-    d.text((MARGEM, base - 44), cargo.upper(), font=fonte(REGULAR, 34), fill=(176, 208, 232))
+    d.text((MARGEM, base - 44), cargo.upper(), font=fonte(REGULAR, 34), fill=paleta["apoio"])
 
 
 def gerar(fundo, perfil, titulo, chapeu, nome, cargo, saida):
+    paleta = PALETAS[fundo]
     bg = {"estudio": fundo_estudio, "consultorio": fundo_consultorio,
-          "grafite": fundo_grafite}[fundo]()
+          "grafite": fundo_grafite, "petroleo": fundo_petroleo}[fundo]()
     sombra, figura, contorno = camadas_pessoa(perfil)
 
     img = Image.alpha_composite(bg.convert("RGBA"), sombra)
     img = Image.alpha_composite(img, figura)
     img = Image.alpha_composite(img, contorno)
-    img = escurecer_extremos(img)
+    img = escurecer_extremos(img, paleta)
 
-    escrever(img, titulo, chapeu, nome, cargo, perfil["topo_cabeca"])
+    # Ate onde o titulo pode descer. Por padrao para antes do cabelo; um perfil
+    # pode baixar esse limite quando o rosto ocupa muito quadro e nao sobra
+    # espaco — ai o titulo cruza o topo do cabelo, que e escuro e nao atrapalha.
+    base_titulo = perfil.get("base_titulo", perfil["topo_cabeca"] - FOLGA_CABELO)
+    escrever(img, titulo, chapeu, nome, cargo, base_titulo, paleta)
     Path(saida).parent.mkdir(parents=True, exist_ok=True)
     img.convert("RGB").save(saida, quality=95, subsampling=0)
     print("capa gerada:", saida)
@@ -230,7 +264,7 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--fundo", default="estudio",
-                   choices=["estudio", "consultorio", "grafite"])
+                   choices=sorted(PALETAS))
     p.add_argument("--foto", default="sueter", choices=sorted(PERFIS))
     p.add_argument("--titulo", default="BLEFAROPLASTIA\nEM HOMENS",
                    help="use \\n para quebrar linha")

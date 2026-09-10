@@ -23,8 +23,8 @@ python3 gerar_capa.py \
 
 | Parâmetro  | O que é                                        |
 |------------|------------------------------------------------|
-| `--foto`   | `sueter` ou `camisa-azul`                       |
-| `--fundo`  | `estudio` (azul da marca), `consultorio` ou `grafite` |
+| `--foto`   | `sueter`, `camisa-azul` ou `sueter-marrom`      |
+| `--fundo`  | `estudio` (azul da marca), `consultorio`, `grafite` ou `petroleo` |
 | `--chapeu` | linha pequena acima do título                   |
 | `--titulo` | título principal (`\n` quebra a linha)          |
 | `--nome`   | nome na assinatura                              |
@@ -49,12 +49,15 @@ quebrar o layout.
 ```
 assets/dr-tiago-recorte.png      recorte com suéter vinho, fundo transparente
 assets/dr-tiago-camisa-azul.png  recorte com camisa azul, fundo transparente
+assets/dr-tiago-sueter-marrom.png  recorte com suéter marrom, fundo transparente
 assets/fundo-consultorio.jpg     faixa da parede/TV do consultório (frame do vídeo)
 fontes/                          Outfit (SIL Open Font License, ver Outfit-OFL.txt)
 ```
 
-O fundo `grafite` existe para roupas claras: a camisa azul se aproxima demais
-do azul da marca e perde separação no fundo `estudio`.
+Cada fundo tem sua paleta de texto. O `grafite` existe para roupas claras — a
+camisa azul se aproxima demais do azul da marca e perde separação no `estudio`.
+O `petroleo` acompanha roupas marrons: azul-esverdeado é o complementar do
+marrom, e o acento vira areia quente em vez de azul.
 
 ## Adicionar uma foto nova
 
@@ -70,6 +73,14 @@ entrada em `PERFIS`, no topo do `gerar_capa.py`:
 - `centro_x` — onde o **rosto** deve cair (nem sempre é o meio do recorte)
 - `topo_cabeca` — altura do topo da cabeça; o título se ajusta a partir dela
 - `brilho` — correção de exposição, para fotos em contraluz
+- `base_titulo` *(opcional)* — até onde o título pode descer. Por padrão ele
+  para `FOLGA_CABELO` px antes do cabelo. Quando o rosto ocupa muito quadro e
+  não sobra espaço, baixe esse limite: o título cruza o topo do cabelo, que é
+  escuro e não atrapalha a leitura.
+
+Para gerar o recorte, o modelo `birefnet-general` do `rembg` foi o único que
+separou o Dr. Tiago da cadeira de escritório atrás dele — `u2net` e
+`u2net_human_seg` trouxeram junto as abas de tela da cadeira.
 
 **Atenção à `largura`:** na selfie atual os ombros já tocam as bordas
 da própria foto, ou seja, o corpo vem cortado da origem. Por isso a figura é
